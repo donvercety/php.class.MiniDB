@@ -118,7 +118,7 @@ $db->pdo;
 
 ### Good Practice
 ```php
-// user exception handling when doing quieres
+// use exception handling when doing quieres
 try {
 	$db->delete('table_name', [
 	    'name', '=', "silvester"
