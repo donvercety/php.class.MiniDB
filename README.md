@@ -60,7 +60,7 @@ $db->get('table_name', [
 ]);
 
 // get query results
-$db->results();
+$results = $db->results();
 ```
 
 ### Update
