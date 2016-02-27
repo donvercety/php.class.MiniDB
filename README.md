@@ -74,7 +74,7 @@ $db->update('table_name', 3, [
 $count = $db->count();
 
 // update by custom field, update where "name" = "tosho"
-$db->update('table_name', ["name", "tosho"], [
+$db->update('table_name', ["name", "=" ,"tosho"], [
     'name' => 'atanas',
     'pass' => 'megatanas'
 ]);

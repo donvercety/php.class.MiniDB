@@ -10,8 +10,8 @@ $db->update('table_name', 3, [
 
 var_dump($db->count());
 
-// update by custom field, update where "uniqueID" = "75AF"
-$db->update('table_name', ["name", "tosho"], [
+// update by custom field, update where "name" = "tosho"
+$db->update('table_name', ["name", "=" ,"tosho"], [
     'name' => 'atanas',
     'pass' => 'megatanas'
 ]);

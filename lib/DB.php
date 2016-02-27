@@ -158,7 +158,7 @@ class DB {
         }
 
         $sql = "INSERT INTO {$table} (`" . implode('`, `', $keys) . "`) VALUES ({$values})";
-                
+              
         if (!$this->query($sql, $fields)->error()) {
             return TRUE;
         }
@@ -210,18 +210,31 @@ class DB {
         }
         
         if (is_array($id)) {
-            $field = $id[0];
-            $value = $id[1];
+            $operators = array('=', '>', '<', '>=', '<=');
 
-            $sql = "UPDATE {$table} SET {$set} WHERE {$field} = '{$value}'";
+            $field    = $id[0];
+            $operator = $id[1];
+            $value    = $id[2];
+
+            if (in_array($operator, $operators)) {
+                $sql = "UPDATE {$table} SET {$set} WHERE {$field} {$operator} ?";
+
+                array_push($fields, $value);
+
+                if (!$this->query($sql, $fields)->error()) {
+                    return TRUE;
+                }
+            }
 
         } else {
+            $id  = (int) $id;
             $sql = "UPDATE {$table} SET {$set} WHERE id = {$id}";
+
+            if (!$this->query($sql, $fields)->error()) {
+                return TRUE;
+            }
         }
         
-        if (!$this->query($sql, $fields)->error()) {
-            return TRUE;
-        }
         return FALSE;
     }
 
