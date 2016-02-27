@@ -113,7 +113,7 @@ $db->getLastInsertId();
 $db->query("SELECT * FROM table_name");
 
 // ADVANCED: get direct access to the PDO objecct
-$db->pdo;
+$db->pdo();
 ```
 
 ### Good Practice
