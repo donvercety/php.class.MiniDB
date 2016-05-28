@@ -9,13 +9,18 @@ require("lib/DB.php");
 
 ### Configuration
 ```php
-// configure connection
+// configure mysql connection
 DB::settings([
     "host" => "localhost",
     "db"   => "test",
     "user" => "test",
     "pass" => "qwerty"
 ]);
+
+// configure sqlite connection
+DB::settings([
+    "db"   => "test.sqlite"
+], "sqlite");
 ```
 
 ### Get Instance

@@ -22,7 +22,8 @@ class DB {
 		"host" => NULL,
 		"db"   => NULL,
 		"user" => NULL,
-		"pass" => NULL
+		"pass" => NULL,
+        "type" => Null
 	];
 
 	/**
@@ -31,22 +32,35 @@ class DB {
 	 */
     private $_pdo,
             $_quety,
-            $_error = FALSE,
             $_results,
-            $_count = 0,
-            $_lastInsertId;
+            $_lastInsertId,
+            $_error  = FALSE,
+            $_count  = 0;
 
 	/**
 	 * Connection initialization
 	 */
     private function __construct() {
+        $type = self::$_cfg["type"];
 		$host = self::$_cfg['host'];
 		$db   = self::$_cfg['db'];
 		
         try {
-            $this->_pdo = new PDO("mysql:host={$host};dbname={$db}", self::$_cfg['user'], self::$_cfg['pass']);
+
+            // sqlite connection
+            if ($type === "sqlite") {
+                if ($db === NULL) {
+                    throw new PDOException('SQLite db file not specified!');
+                }
+                $this->_pdo = new PDO("sqlite:{$db}");
+
+            // mysql connection
+            } else {
+                $this->_pdo = new PDO("mysql:host={$host};dbname={$db}", self::$_cfg['user'], self::$_cfg['pass']);
+                $this->_pdo->exec("SET CHARACTER SET utf8");
+            }
+
             $this->_pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$this->_pdo->exec("SET CHARACTER SET utf8");
 
         } catch (PDOException $e) {
             die($e->getMessage());
@@ -68,8 +82,12 @@ class DB {
 	 * DB Connection Settings
 	 * @param array $cfg
 	 */
-	public static function settings($cfg) {
+	public static function settings($cfg, $type = NULL) {
 		self::$_cfg = $cfg;
+
+        if ($type === "sqlite") {
+            self::$_cfg["type"] = $type;
+        }
 	}
 	
 	// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
