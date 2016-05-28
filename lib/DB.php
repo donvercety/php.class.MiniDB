@@ -8,28 +8,28 @@
  */
 class DB {
     
-	/**
-	 * DB Connection Instance
-	 * @var object
-	 */
+    /**
+     * DB Connection Instance
+     * @var object
+     */
     private static $_instance = NULL;
-	
-	/**
-	 * Connection credentials
-	 * @var array
-	 */
-	private static $_cfg = [	
-		"host" => NULL,
-		"db"   => NULL,
-		"user" => NULL,
-		"pass" => NULL,
+    
+    /**
+     * Connection credentials
+     * @var array
+     */
+    private static $_cfg = [    
+        "host" => NULL,
+        "db"   => NULL,
+        "user" => NULL,
+        "pass" => NULL,
         "type" => Null
-	];
+    ];
 
-	/**
-	 * Query specific
-	 * @var type 
-	 */
+    /**
+     * Query specific
+     * @var type 
+     */
     private $_pdo,
             $_quety,
             $_results,
@@ -37,14 +37,14 @@ class DB {
             $_error  = FALSE,
             $_count  = 0;
 
-	/**
-	 * Connection initialization
-	 */
+    /**
+     * Connection initialization
+     */
     private function __construct() {
         $type = self::$_cfg["type"];
-		$host = self::$_cfg['host'];
-		$db   = self::$_cfg['db'];
-		
+        $host = self::$_cfg['host'];
+        $db   = self::$_cfg['db'];
+        
         try {
 
             // sqlite connection
@@ -67,34 +67,48 @@ class DB {
         }
     }
     
-	/**
-	 * Singleton instance manager
-	 * @return object
-	 */
+    /**
+     * Singleton instance manager
+     * @return object
+     */
     public static function getInstance() {
         if (!isset(self::$_instance)) {
             self::$_instance = new DB();
         }
         return self::$_instance;
     }
-	
-	/**
-	 * DB Connection Settings
-	 * @param array $cfg
-	 */
-	public static function settings($cfg, $type = NULL) {
-		self::$_cfg = $cfg;
+    
+    /**
+     * DB Connection Settings
+     * @param array $cfg
+     */
+    public static function settings($_cfg, $type = NULL) {
+        if (isset($_cfg["user"])) {
+            self::$_cfg["user"] = $_cfg["user"];
+        }
+
+        if (isset($_cfg["pass"])) {
+            self::$_cfg["pass"] = $_cfg["pass"];
+        }
+
+        if (isset($_cfg["host"])) {
+            self::$_cfg["host"] = $_cfg["host"];
+        }
+
+        if (isset($_cfg["db"])) {
+            self::$_cfg["db"] = $_cfg["db"];
+        }
 
         if ($type === "sqlite") {
             self::$_cfg["type"] = $type;
         }
-	}
-	
-	// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
-	// Main Method
-	// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    }
+    
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    // Main Method
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-	public function query($sql, $params = array()) {
+    public function query($sql, $params = array()) {
         $this->_error = FALSE;
         $this->_quety = $this->_pdo->prepare($sql);
 
@@ -109,25 +123,25 @@ class DB {
 
             if ($this->_quety->execute()) {
 
-				// check to use fetchAll(), only on result sets
-				if ($this->_quety->columnCount()) {
-					$this->_results  = $this->_quety->fetchAll(PDO::FETCH_OBJ);
-				}
+                // check to use fetchAll(), only on result sets
+                if ($this->_quety->columnCount()) {
+                    $this->_results  = $this->_quety->fetchAll(PDO::FETCH_OBJ);
+                }
 
-                $this->_count		 = $this->_quety->rowCount();
-				$this->_lastInsertId = $this->_pdo->lastInsertId();
+                $this->_count        = $this->_quety->rowCount();
+                $this->_lastInsertId = $this->_pdo->lastInsertId();
 
-			}
+            }
             else {
                 $this->_error = TRUE;
             }
         }
         return $this;
     }
-	
-	// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
-	// Secondary Methods
-	// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    // Secondary Methods
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
     
     public function action($action, $table, $where = array()) {
         if (count($where) === 3) {
@@ -183,7 +197,7 @@ class DB {
 
         return FALSE;
     }
-	
+    
     public function insertMultiple($table, $fields = array(), $values = array()) {
         $bind = ''; $x = 1;
 
@@ -260,9 +274,9 @@ class DB {
         return $this->_pdo;
     }
 
-	// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
-	// Getters
-	// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    // Getters
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
     public function results() {
         return $this->_results;
@@ -271,7 +285,7 @@ class DB {
     public function first() {
         return $this->results() ? $this->results()[0] : FALSE;
     }
-	
+    
     public function error() {
         return $this->_error;
     }
