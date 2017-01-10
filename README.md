@@ -3,7 +3,7 @@
 Version 1.1
 
 > New functionality in v1.1  
-> methods: `select()` & `options()`
+> methods: `select()` & `options()`  
 > must be invoked BEFORE! the main  
 > query constructor methods:  
 > `insert`, `insertMultiple`, `get`, `update`, `delete`
