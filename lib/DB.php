@@ -63,16 +63,31 @@ class DB {
             }
 
             $this->_pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$this->_pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			$this->_pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 
         } catch (PDOException $e) {
             die($e->getMessage());
         }
     }
 
-    private function reset() {
+    private function _reset() {
         $this->select('*');
         $this->options('');
     }
+
+	private function _bindQuestions($values) {
+		$x = 1; $bind = '';
+
+		foreach ($values as $value) {
+			$bind .= '?';
+			if ($x < count($values)) {
+				$bind .= ', ';
+			}
+			$x++;
+		}
+		return $bind;
+	}
 
     /**
      * Singleton instance manager
@@ -142,7 +157,7 @@ class DB {
                 $this->_error = TRUE;
             }
 
-            $this->reset();
+            $this->_reset();
         }
         return $this;
     }
@@ -153,21 +168,35 @@ class DB {
 
     public function action($action, $table, $where = array()) {
         if (count($where) === 3) {
-            $operators = array('=', '>', '<', '>=', '<=');
 
-            $field    = $where[0];
-            $operator = $where[1];
-            $value    = $where[2];
+			if (strtoupper($where[1]) == "IN" && is_array($where[2])) {
+				$field  = $where[0];
+				$values = $where[2];
+				
+				$bind = $this->_bindQuestions($values);
+				
+				$sql = "{$action} FROM `{$table}` WHERE {$field} IN ({$bind})";
+				if (!$this->query($sql, $values)->error()) {
+					return $this;
+				}
+			
+			} else {
+				$operators = array('=', '>', '<', '>=', '<=');
 
-            if (in_array($operator, $operators)) {
-                $sql = "{$action} FROM {$table} WHERE {$field} {$operator} ?";
-                if (!$this->query($sql, array($value))->error()) {
-                    return $this;
-                }
-            }
+				$field    = $where[0];
+				$operator = $where[1];
+				$value    = $where[2];
+			
+				if (in_array($operator, $operators)) {
+					$sql = "{$action} FROM `{$table}` WHERE {$field} {$operator} ?";
+					if (!$this->query($sql, array($value))->error()) {
+						return $this;
+					}
+				}
+			}
 
         } else {
-            $sql = "{$action} FROM {$table}";
+            $sql = "{$action} FROM `{$table}`";
             if (!$this->query($sql)->error()) {
                 return $this;
             }
@@ -196,18 +225,9 @@ class DB {
     public function insert($table, $fields = array()) {
 
         $keys = array_keys($fields);
-        $values = '';
-        $x = 1;
+        $bind = $this->_bindQuestions($fields);
 
-        foreach ($fields as $field) {
-            $values .= '?';
-            if ($x < count($fields)) {
-                $values .= ', ';
-            }
-            $x++;
-        }
-
-        $sql = "INSERT INTO {$table} (`" . implode('`, `', $keys) . "`) VALUES ({$values})";
+        $sql = "INSERT INTO {$table} (`" . implode('`, `', $keys) . "`) VALUES ({$bind})";
 
         if (!$this->query($sql, $fields)->error()) {
             return TRUE;
