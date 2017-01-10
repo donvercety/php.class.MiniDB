@@ -118,7 +118,7 @@ class DB {
     public function query($sql, $params = array()) {
         $this->_error = FALSE;
         $this->_quety = $this->_pdo->prepare("$sql {$this->_options}");
-error_log("$sql {$this->_options}");
+
         if ($this->_quety) {
             $x = 1;
             if (count($params)) {
