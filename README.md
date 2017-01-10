@@ -1,6 +1,10 @@
 # php.class.MiniDB v1.0
 
-Version 1.0
+Version 1.1
+
+> New functionality in v1.1
+> methods: `select()` & `options()` must be invoked BEFORE! the main
+> query constructor methods: `insert, insertMultiple, get, update, delete`
 
 ### Get Access to lib
 ```php
@@ -42,6 +46,16 @@ $db->insert('table_name', [
 	'code'   => 1000
 ]);
 
+// insert single row to table, with on duplicate key clause
+$db->options('ON DUPLICATE KEY UPDATE id = id')->insert('table_name', [
+	'id'     => 1,
+	'name'   => 'user',
+	'pass'   => 'qwerty',
+	'msisdn' => "0882204604",
+	'city'   => 'Sofia',
+	'code'   => 1000
+]);
+
 // insert multiple rows to table
 $db->insertMultiple("table_name", ["name", "pass", "msisdn", "city", "code"], [
 	["mark", "test21", "0883304504", "London", 4312],
@@ -58,6 +72,15 @@ $count = $db->count();
 ```php
 // return full table content
 $db->get("table_name");
+
+// select only some fields
+$db->select('id')->get("table_name");
+
+// return limited table content
+$db->options('LIMIT 1')->get("table_name");
+
+// combine the methods
+$db->select('id')->options('LIMIT 1')->get("table_name");
 
 // return filtered results
 $db->get('table_name', [
@@ -119,6 +142,9 @@ $db->query("SELECT * FROM table_name");
 
 // ADVANCED: get direct access to the PDO objecct
 $db->pdo();
+
+// EXAMPLES:
+$db->pdo()->quote(); // exactly equivalent to mysql_real_escape_string()
 ```
 
 ### Good Practice

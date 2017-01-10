@@ -7,18 +7,18 @@
  * @author Tommy Vercety
  */
 class DB {
-    
+
     /**
      * DB Connection Instance
      * @var object
      */
     private static $_instance = NULL;
-    
+
     /**
      * Connection credentials
      * @var array
      */
-    private static $_cfg = [    
+    private static $_cfg = [
         "host" => NULL,
         "db"   => NULL,
         "user" => NULL,
@@ -28,14 +28,16 @@ class DB {
 
     /**
      * Query specific
-     * @var type 
+     * @var type
      */
     private $_pdo,
             $_quety,
             $_results,
             $_lastInsertId,
-            $_error  = FALSE,
-            $_count  = 0;
+            $_error   = FALSE,
+            $_count   = 0,
+            $_select  = '*',
+            $_options = '';
 
     /**
      * Connection initialization
@@ -44,7 +46,7 @@ class DB {
         $type = self::$_cfg["type"];
         $host = self::$_cfg['host'];
         $db   = self::$_cfg['db'];
-        
+
         try {
 
             // sqlite connection
@@ -66,7 +68,12 @@ class DB {
             die($e->getMessage());
         }
     }
-    
+
+    private function reset() {
+        $this->select('*');
+        $this->options('');
+    }
+
     /**
      * Singleton instance manager
      * @return object
@@ -77,7 +84,7 @@ class DB {
         }
         return self::$_instance;
     }
-    
+
     /**
      * DB Connection Settings
      * @param array $cfg
@@ -103,15 +110,15 @@ class DB {
             self::$_cfg["type"] = $type;
         }
     }
-    
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     // Main Method
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
     public function query($sql, $params = array()) {
         $this->_error = FALSE;
-        $this->_quety = $this->_pdo->prepare($sql);
-
+        $this->_quety = $this->_pdo->prepare("$sql {$this->_options}");
+error_log("$sql {$this->_options}");
         if ($this->_quety) {
             $x = 1;
             if (count($params)) {
@@ -131,22 +138,23 @@ class DB {
                 $this->_count        = $this->_quety->rowCount();
                 $this->_lastInsertId = $this->_pdo->lastInsertId();
 
-            }
-            else {
+            } else {
                 $this->_error = TRUE;
             }
+
+            $this->reset();
         }
         return $this;
     }
-    
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     // Secondary Methods
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
-    
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
     public function action($action, $table, $where = array()) {
         if (count($where) === 3) {
             $operators = array('=', '>', '<', '>=', '<=');
-            
+
             $field    = $where[0];
             $operator = $where[1];
             $value    = $where[2];
@@ -166,21 +174,31 @@ class DB {
         }
         return FALSE;
     }
-    
-    public function get($table, $where = array()) {
-        return $this->action('SELECT *', $table, $where);
+
+    public function select($fields) {
+        $this->_select = $fields;
+        return $this;
     }
-    
+
+    public function options($options) {
+        $this->_options = $options;
+        return $this;
+    }
+
+    public function get($table, $where = array()) {
+        return $this->action("SELECT {$this->_select}", $table, $where);
+    }
+
     public function delete($table, $where) {
         return $this->action('DELETE', $table, $where);
     }
-    
+
     public function insert($table, $fields = array()) {
-        
+
         $keys = array_keys($fields);
         $values = '';
         $x = 1;
-        
+
         foreach ($fields as $field) {
             $values .= '?';
             if ($x < count($fields)) {
@@ -190,14 +208,14 @@ class DB {
         }
 
         $sql = "INSERT INTO {$table} (`" . implode('`, `', $keys) . "`) VALUES ({$values})";
-              
+
         if (!$this->query($sql, $fields)->error()) {
             return TRUE;
         }
 
         return FALSE;
     }
-    
+
     public function insertMultiple($table, $fields = array(), $values = array()) {
         $bind = ''; $x = 1;
 
@@ -232,7 +250,7 @@ class DB {
 
     public function update($table, $id, $fields) {
         $set = ''; $x = 1;
-        
+
         foreach ($fields as $name => $value) {
             $set .= "{$name} = ?";
             if ($x < count($fields)) {
@@ -240,7 +258,7 @@ class DB {
             }
             $x++;
         }
-        
+
         if (is_array($id)) {
             $operators = array('=', '>', '<', '>=', '<=');
 
@@ -266,7 +284,7 @@ class DB {
                 return TRUE;
             }
         }
-        
+
         return FALSE;
     }
 
@@ -274,28 +292,28 @@ class DB {
         return $this->_pdo;
     }
 
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     // Getters
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
     public function results() {
         return $this->_results;
     }
-    
+
     public function first() {
         return $this->results() ? $this->results()[0] : FALSE;
     }
-    
+
     public function error() {
         return $this->_error;
     }
-    
+
     public function count() {
         return $this->_count;
     }
-    
+
     public function getLastInsertId() {
         return $this->_lastInsertId;
     }
-    
+
 }

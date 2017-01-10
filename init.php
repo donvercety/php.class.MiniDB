@@ -11,9 +11,9 @@ DB::settings([
 ]);
 
 // configure sqlite connection
-DB::settings([
-    "db"   => "test.sqlite"
-], "sqlite");
+// DB::settings([
+//     "db"   => "test.sqlite"
+// ], "sqlite");
 
 // get class instance
 $db = DB::getInstance();

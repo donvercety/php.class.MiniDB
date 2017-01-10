@@ -13,6 +13,18 @@ $db->insert('table_name', [
 
 var_dump($db->count());
 
+// insert single row to table
+$db->options('ON DUPLICATE KEY UPDATE id = id')->insert('table_name', [
+	'id'     => 1,
+	'name'   => 'duplicate key update',
+	'pass'   => 'qwerty',
+	'msisdn' => "0882204604",
+	'city'   => 'Sofia',
+	'code'   => 1000
+]);
+
+var_dump($db->count());
+
 // insert multiple rows to table
 $db->insertMultiple("table_name", ["name", "pass", "msisdn", "city", "code"], [
 	["mark", "test21", "0883304504", "London", 4312],
