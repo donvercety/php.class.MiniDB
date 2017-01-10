@@ -122,6 +122,12 @@ $count = $db->count();
 
 ### Extras
 ```php
+// select fields from table, use before `get()`
+$db->select('id');
+
+// query options: LIMIT.., ON DUPLICATE KEY.., ORDER BY..
+$db->options();
+
 // get query results
 $db->results();
 
