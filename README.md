@@ -89,6 +89,10 @@ $db->get('table_name', [
     'name', '=', "pesho"
 ]);
 
+$db->get('table_name', [
+    'name', 'IN', ["pesho", "gosho"]
+]);
+
 // get query results
 $results = $db->results();
 ```
