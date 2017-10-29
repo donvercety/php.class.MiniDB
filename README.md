@@ -1,4 +1,4 @@
-# php.class.MiniDB v1.0
+# php.class.MiniDB v1.1
 
 Version 1.1
 
