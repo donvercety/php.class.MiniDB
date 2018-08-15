@@ -7,7 +7,7 @@ Version 1.2
 > must be invoked BEFORE! the main  
 > query constructor methods:  
 > `insert`, `insertMultiple`, `get`, `update`, `delete`
-> New functionality in v1.2
+> New functionality in v1.2  
 > `delete()` can now work directly with `id` parameter,
 > the same way `update()` can.
 
