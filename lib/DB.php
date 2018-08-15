@@ -12,18 +12,18 @@ class DB {
      * DB Connection Instance
      * @var object
      */
-    private static $_instance = NULL;
+    private static $_instance = null;
 
     /**
      * Connection credentials
      * @var array
      */
     private static $_cfg = [
-        "host" => NULL,
-        "db"   => NULL,
-        "user" => NULL,
-        "pass" => NULL,
-        "type" => Null
+        "host" => null,
+        "db"   => null,
+        "user" => null,
+        "pass" => null,
+        "type" => null
     ];
 
     /**
@@ -34,7 +34,7 @@ class DB {
             $_quety,
             $_results,
             $_lastInsertId,
-            $_error   = FALSE,
+            $_error   = false,
             $_count   = 0,
             $_select  = '*',
             $_options = '';
@@ -104,7 +104,7 @@ class DB {
      * DB Connection Settings
      * @param array $cfg
      */
-    public static function settings($_cfg, $type = NULL) {
+    public static function settings($_cfg, $type = null) {
         if (isset($_cfg["user"])) {
             self::$_cfg["user"] = $_cfg["user"];
         }
@@ -131,7 +131,7 @@ class DB {
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
     public function query($sql, $params = array()) {
-        $this->_error = FALSE;
+        $this->_error = false;
         $this->_quety = $this->_pdo->prepare("$sql {$this->_options}");
 
         if ($this->_quety) {
@@ -154,7 +154,7 @@ class DB {
                 $this->_lastInsertId = $this->_pdo->lastInsertId();
 
             } else {
-                $this->_error = TRUE;
+                $this->_error = true;
             }
 
             $this->_reset();
@@ -201,7 +201,7 @@ class DB {
                 return $this;
             }
         }
-        return FALSE;
+        return false;
     }
 
     public function select($fields) {
@@ -219,7 +219,18 @@ class DB {
     }
 
     public function delete($table, $where) {
-        return $this->action('DELETE', $table, $where);
+        if (is_array($where)) {
+			return $this->action('DELETE', $table, $where);
+		} 
+
+		$id  = (int) $where;
+		$sql = "DELETE FROM {$table} WHERE id = {$id}";
+
+		if (!$this->query($sql)->error()) {
+			return true;
+		}
+
+        return false;
     }
 
     public function insert($table, $fields = array()) {

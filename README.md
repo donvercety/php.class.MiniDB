@@ -1,12 +1,15 @@
-# php.class.MiniDB v1.1
+# php.class.MiniDB v1.2
 
-Version 1.1
+Version 1.2
 
 > New functionality in v1.1  
 > methods: `select()` & `options()`  
 > must be invoked BEFORE! the main  
 > query constructor methods:  
 > `insert`, `insertMultiple`, `get`, `update`, `delete`
+> New functionality in v1.2
+> `delete()` can now work directly with `id` parameter,
+> the same way `update()` can.
 
 ### Get Access to lib
 ```php
@@ -118,6 +121,9 @@ $count = $db->count();
 
 ### Delete
 ```php
+// delete by id
+$db->delete('table_name', 3);
+
 // delete table entry
 $db->delete('table_name', [
     'name', '=', "silvester"
