@@ -8,7 +8,7 @@ Version 1.2
 > query constructor methods:  
 > `insert`, `insertMultiple`, `get`, `update`, `delete`  
 > New functionality in v1.2  
-> `delete()` can now work directly with `id` parameter,
+> `delete()` can now work directly with `id` parameter,  
 > the same way `update()` can.
 
 ### Get Access to lib
